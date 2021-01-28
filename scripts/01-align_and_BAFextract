@@ -1,0 +1,1252 @@
+#!/bin/bash
+set -uex -o pipefail
+
+WD="~/userData/colon_cancer_patients_CNV"
+FASTQ_DIR=$WD/data/fastq
+BAM_DIR=$WD/processed/bam
+BAF_DIR=$WD/processed/baf
+
+STAR=/mnt/data/ccbc_environment/software/general/STAR-2.7.6a/STAR
+GENOME_INDEX=~/userData/resources/genomes/homosapiens/STAR/GRCh38
+BAFExtract=~/userData/software/BAFExtract-master/bin/BAFExtract
+GENOME_PILEUP=~/userData/resources/genomes/homosapiens/BAFextract/GRCh38
+CHROM_SIZE=~/userData/resources/genomes/homosapiens/BAFextract/GRCh38_chromsizes.list
+
+cd $WD
+mkdir -p $FASTQ_DIR
+mkdir -p $BAM_DIR
+
+
+# Processing sample: Sample9a ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT003_hg19_S15_L001_R1_001.fastq.gz,scrEXT003_hg19_S15_L002_R1_001.fastq.gz,scrEXT003_hg19_S15_L003_R1_001.fastq.gz,scrEXT003_hg19_S15_L004_R1_001.fastq.gz,scrEXT003_hg19_S15_L005_R1_001.fastq.gz,scrEXT003_hg19_S15_L006_R1_001.fastq.gz scrEXT003_hg19_S15_L001_R2_001.fastq.gz,scrEXT003_hg19_S15_L002_R2_001.fastq.gz,scrEXT003_hg19_S15_L003_R2_001.fastq.gz,scrEXT003_hg19_S15_L004_R2_001.fastq.gz,scrEXT003_hg19_S15_L005_R2_001.fastq.gz,scrEXT003_hg19_S15_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample1c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample1c
+samtools view -h $BAM_DIR/Sample1cAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample1c/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample1c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample1c.baf 
+
+  rm -rf $BAF_DIR/Sample1c
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample1c ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT002_hg19_S8_L007_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT002_hg19_S8_L007_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT002_hg19_S8_L007_R1_001.fastq.gz scrEXT002_hg19_S8_L007_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample1b. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample1b
+samtools view -h $BAM_DIR/Sample1bAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample1b/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample1b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample1b.baf 
+
+  rm -rf $BAF_DIR/Sample1b
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample1b ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT001_hg19_S9_L008_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT001_hg19_S9_L008_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT001_hg19_S9_L008_R1_001.fastq.gz scrEXT001_hg19_S9_L008_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample1a. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample1a
+samtools view -h $BAM_DIR/Sample1aAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample1a/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample1a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample1a.baf 
+
+  rm -rf $BAF_DIR/Sample1a
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample1a ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT011_hg19_S7_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT011_hg19_S7_L001_R1_001.fastq.gz,scrEXT011_hg19_S7_L002_R1_001.fastq.gz,scrEXT011_hg19_S7_L003_R1_001.fastq.gz,scrEXT011_hg19_S7_L004_R1_001.fastq.gz,scrEXT011_hg19_S7_L005_R1_001.fastq.gz,scrEXT011_hg19_S7_L006_R1_001.fastq.gz scrEXT011_hg19_S7_L001_R2_001.fastq.gz,scrEXT011_hg19_S7_L002_R2_001.fastq.gz,scrEXT011_hg19_S7_L003_R2_001.fastq.gz,scrEXT011_hg19_S7_L004_R2_001.fastq.gz,scrEXT011_hg19_S7_L005_R2_001.fastq.gz,scrEXT011_hg19_S7_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample2c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample2c
+samtools view -h $BAM_DIR/Sample2cAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample2c/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample2c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample2c.baf 
+
+  rm -rf $BAF_DIR/Sample2c
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample2c ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT010_hg19_S6_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT010_hg19_S6_L001_R1_001.fastq.gz,scrEXT010_hg19_S6_L002_R1_001.fastq.gz,scrEXT010_hg19_S6_L003_R1_001.fastq.gz,scrEXT010_hg19_S6_L004_R1_001.fastq.gz,scrEXT010_hg19_S6_L005_R1_001.fastq.gz,scrEXT010_hg19_S6_L006_R1_001.fastq.gz scrEXT010_hg19_S6_L001_R2_001.fastq.gz,scrEXT010_hg19_S6_L002_R2_001.fastq.gz,scrEXT010_hg19_S6_L003_R2_001.fastq.gz,scrEXT010_hg19_S6_L004_R2_001.fastq.gz,scrEXT010_hg19_S6_L005_R2_001.fastq.gz,scrEXT010_hg19_S6_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample2b. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample2b
+samtools view -h $BAM_DIR/Sample2bAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample2b/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample2b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample2b.baf 
+
+  rm -rf $BAF_DIR/Sample2b
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample2b ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT009_hg19_S5_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT009_hg19_S5_L001_R1_001.fastq.gz,scrEXT009_hg19_S5_L002_R1_001.fastq.gz,scrEXT009_hg19_S5_L003_R1_001.fastq.gz,scrEXT009_hg19_S5_L004_R1_001.fastq.gz,scrEXT009_hg19_S5_L005_R1_001.fastq.gz,scrEXT009_hg19_S5_L006_R1_001.fastq.gz scrEXT009_hg19_S5_L001_R2_001.fastq.gz,scrEXT009_hg19_S5_L002_R2_001.fastq.gz,scrEXT009_hg19_S5_L003_R2_001.fastq.gz,scrEXT009_hg19_S5_L004_R2_001.fastq.gz,scrEXT009_hg19_S5_L005_R2_001.fastq.gz,scrEXT009_hg19_S5_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample2a. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample2a
+samtools view -h $BAM_DIR/Sample2aAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample2a/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample2a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample2a.baf 
+
+  rm -rf $BAF_DIR/Sample2a
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample2a ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT014_hg19_S13_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT014_hg19_S13_L001_R1_001.fastq.gz,scrEXT014_hg19_S13_L002_R1_001.fastq.gz,scrEXT014_hg19_S13_L003_R1_001.fastq.gz,scrEXT014_hg19_S13_L004_R1_001.fastq.gz,scrEXT014_hg19_S13_L005_R1_001.fastq.gz,scrEXT014_hg19_S13_L006_R1_001.fastq.gz scrEXT014_hg19_S13_L001_R2_001.fastq.gz,scrEXT014_hg19_S13_L002_R2_001.fastq.gz,scrEXT014_hg19_S13_L003_R2_001.fastq.gz,scrEXT014_hg19_S13_L004_R2_001.fastq.gz,scrEXT014_hg19_S13_L005_R2_001.fastq.gz,scrEXT014_hg19_S13_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample3c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample3c
+samtools view -h $BAM_DIR/Sample3cAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample3c/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample3c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample3c.baf 
+
+  rm -rf $BAF_DIR/Sample3c
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample3c ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT013_hg19_S12_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT013_hg19_S12_L001_R1_001.fastq.gz,scrEXT013_hg19_S12_L002_R1_001.fastq.gz,scrEXT013_hg19_S12_L003_R1_001.fastq.gz,scrEXT013_hg19_S12_L004_R1_001.fastq.gz,scrEXT013_hg19_S12_L005_R1_001.fastq.gz,scrEXT013_hg19_S12_L006_R1_001.fastq.gz scrEXT013_hg19_S12_L001_R2_001.fastq.gz,scrEXT013_hg19_S12_L002_R2_001.fastq.gz,scrEXT013_hg19_S12_L003_R2_001.fastq.gz,scrEXT013_hg19_S12_L004_R2_001.fastq.gz,scrEXT013_hg19_S12_L005_R2_001.fastq.gz,scrEXT013_hg19_S12_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample3b. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample3b
+samtools view -h $BAM_DIR/Sample3bAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample3b/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample3b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample3b.baf 
+
+  rm -rf $BAF_DIR/Sample3b
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample3b ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT012_hg19_S11_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT012_hg19_S11_L001_R1_001.fastq.gz,scrEXT012_hg19_S11_L002_R1_001.fastq.gz,scrEXT012_hg19_S11_L003_R1_001.fastq.gz,scrEXT012_hg19_S11_L004_R1_001.fastq.gz,scrEXT012_hg19_S11_L005_R1_001.fastq.gz,scrEXT012_hg19_S11_L006_R1_001.fastq.gz scrEXT012_hg19_S11_L001_R2_001.fastq.gz,scrEXT012_hg19_S11_L002_R2_001.fastq.gz,scrEXT012_hg19_S11_L003_R2_001.fastq.gz,scrEXT012_hg19_S11_L004_R2_001.fastq.gz,scrEXT012_hg19_S11_L005_R2_001.fastq.gz,scrEXT012_hg19_S11_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample3a. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample3a
+samtools view -h $BAM_DIR/Sample3aAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample3a/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample3a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample3a.baf 
+
+  rm -rf $BAF_DIR/Sample3a
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample3a ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT017_hg19_S6_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT017_hg19_S6_L001_R1_001.fastq.gz,scrEXT017_hg19_S6_L002_R1_001.fastq.gz,scrEXT017_hg19_S6_L003_R1_001.fastq.gz,scrEXT017_hg19_S6_L004_R1_001.fastq.gz,scrEXT017_hg19_S6_L005_R1_001.fastq.gz,scrEXT017_hg19_S6_L006_R1_001.fastq.gz scrEXT017_hg19_S6_L001_R2_001.fastq.gz,scrEXT017_hg19_S6_L002_R2_001.fastq.gz,scrEXT017_hg19_S6_L003_R2_001.fastq.gz,scrEXT017_hg19_S6_L004_R2_001.fastq.gz,scrEXT017_hg19_S6_L005_R2_001.fastq.gz,scrEXT017_hg19_S6_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample4c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample4c
+samtools view -h $BAM_DIR/Sample4cAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample4c/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample4c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample4c.baf 
+
+  rm -rf $BAF_DIR/Sample4c
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample4c ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT016_hg19_c_S7_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT016_hg19_c_S7_L001_R1_001.fastq.gz,scrEXT016_hg19_c_S7_L002_R1_001.fastq.gz,scrEXT016_hg19_c_S7_L003_R1_001.fastq.gz,scrEXT016_hg19_c_S7_L004_R1_001.fastq.gz,scrEXT016_hg19_c_S7_L005_R1_001.fastq.gz,scrEXT016_hg19_c_S7_L006_R1_001.fastq.gz scrEXT016_hg19_c_S7_L001_R2_001.fastq.gz,scrEXT016_hg19_c_S7_L002_R2_001.fastq.gz,scrEXT016_hg19_c_S7_L003_R2_001.fastq.gz,scrEXT016_hg19_c_S7_L004_R2_001.fastq.gz,scrEXT016_hg19_c_S7_L005_R2_001.fastq.gz,scrEXT016_hg19_c_S7_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample4b. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample4b
+samtools view -h $BAM_DIR/Sample4bAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample4b/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample4b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample4b.baf 
+
+  rm -rf $BAF_DIR/Sample4b
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample4b ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT015_hg19_c_S8_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT015_hg19_c_S8_L001_R1_001.fastq.gz,scrEXT015_hg19_c_S8_L002_R1_001.fastq.gz,scrEXT015_hg19_c_S8_L003_R1_001.fastq.gz,scrEXT015_hg19_c_S8_L004_R1_001.fastq.gz,scrEXT015_hg19_c_S8_L005_R1_001.fastq.gz,scrEXT015_hg19_c_S8_L006_R1_001.fastq.gz scrEXT015_hg19_c_S8_L001_R2_001.fastq.gz,scrEXT015_hg19_c_S8_L002_R2_001.fastq.gz,scrEXT015_hg19_c_S8_L003_R2_001.fastq.gz,scrEXT015_hg19_c_S8_L004_R2_001.fastq.gz,scrEXT015_hg19_c_S8_L005_R2_001.fastq.gz,scrEXT015_hg19_c_S8_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample4a. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample4a
+samtools view -h $BAM_DIR/Sample4aAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample4a/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample4a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample4a.baf 
+
+  rm -rf $BAF_DIR/Sample4a
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample4a ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT020_hg19_S11_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT020_hg19_S11_L001_R1_001.fastq.gz,scrEXT020_hg19_S11_L002_R1_001.fastq.gz,scrEXT020_hg19_S11_L003_R1_001.fastq.gz,scrEXT020_hg19_S11_L004_R1_001.fastq.gz,scrEXT020_hg19_S11_L005_R1_001.fastq.gz,scrEXT020_hg19_S11_L006_R1_001.fastq.gz scrEXT020_hg19_S11_L001_R2_001.fastq.gz,scrEXT020_hg19_S11_L002_R2_001.fastq.gz,scrEXT020_hg19_S11_L003_R2_001.fastq.gz,scrEXT020_hg19_S11_L004_R2_001.fastq.gz,scrEXT020_hg19_S11_L005_R2_001.fastq.gz,scrEXT020_hg19_S11_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample5c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample5c
+samtools view -h $BAM_DIR/Sample5cAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample5c/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample5c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample5c.baf 
+
+  rm -rf $BAF_DIR/Sample5c
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample5c ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT019_hg19_S10_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT019_hg19_S10_L001_R1_001.fastq.gz,scrEXT019_hg19_S10_L002_R1_001.fastq.gz,scrEXT019_hg19_S10_L003_R1_001.fastq.gz,scrEXT019_hg19_S10_L004_R1_001.fastq.gz,scrEXT019_hg19_S10_L005_R1_001.fastq.gz,scrEXT019_hg19_S10_L006_R1_001.fastq.gz scrEXT019_hg19_S10_L001_R2_001.fastq.gz,scrEXT019_hg19_S10_L002_R2_001.fastq.gz,scrEXT019_hg19_S10_L003_R2_001.fastq.gz,scrEXT019_hg19_S10_L004_R2_001.fastq.gz,scrEXT019_hg19_S10_L005_R2_001.fastq.gz,scrEXT019_hg19_S10_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample5b. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample5b
+samtools view -h $BAM_DIR/Sample5bAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample5b/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample5b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample5b.baf 
+
+  rm -rf $BAF_DIR/Sample5b
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample5b ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT018_hg19_S9_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT018_hg19_S9_L001_R1_001.fastq.gz,scrEXT018_hg19_S9_L002_R1_001.fastq.gz,scrEXT018_hg19_S9_L003_R1_001.fastq.gz,scrEXT018_hg19_S9_L004_R1_001.fastq.gz,scrEXT018_hg19_S9_L005_R1_001.fastq.gz,scrEXT018_hg19_S9_L006_R1_001.fastq.gz scrEXT018_hg19_S9_L001_R2_001.fastq.gz,scrEXT018_hg19_S9_L002_R2_001.fastq.gz,scrEXT018_hg19_S9_L003_R2_001.fastq.gz,scrEXT018_hg19_S9_L004_R2_001.fastq.gz,scrEXT018_hg19_S9_L005_R2_001.fastq.gz,scrEXT018_hg19_S9_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample5a. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample5a
+samtools view -h $BAM_DIR/Sample5aAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample5a/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample5a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample5a.baf 
+
+  rm -rf $BAF_DIR/Sample5a
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample5a ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT023_hg19_S14_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT023_hg19_S14_L001_R1_001.fastq.gz,scrEXT023_hg19_S14_L002_R1_001.fastq.gz,scrEXT023_hg19_S14_L003_R1_001.fastq.gz,scrEXT023_hg19_S14_L004_R1_001.fastq.gz,scrEXT023_hg19_S14_L005_R1_001.fastq.gz,scrEXT023_hg19_S14_L006_R1_001.fastq.gz scrEXT023_hg19_S14_L001_R2_001.fastq.gz,scrEXT023_hg19_S14_L002_R2_001.fastq.gz,scrEXT023_hg19_S14_L003_R2_001.fastq.gz,scrEXT023_hg19_S14_L004_R2_001.fastq.gz,scrEXT023_hg19_S14_L005_R2_001.fastq.gz,scrEXT023_hg19_S14_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample6c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample6c
+samtools view -h $BAM_DIR/Sample6cAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample6c/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample6c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample6c.baf 
+
+  rm -rf $BAF_DIR/Sample6c
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample6c ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT022_hg19_S13_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT022_hg19_S13_L001_R1_001.fastq.gz,scrEXT022_hg19_S13_L002_R1_001.fastq.gz,scrEXT022_hg19_S13_L003_R1_001.fastq.gz,scrEXT022_hg19_S13_L004_R1_001.fastq.gz,scrEXT022_hg19_S13_L005_R1_001.fastq.gz,scrEXT022_hg19_S13_L006_R1_001.fastq.gz scrEXT022_hg19_S13_L001_R2_001.fastq.gz,scrEXT022_hg19_S13_L002_R2_001.fastq.gz,scrEXT022_hg19_S13_L003_R2_001.fastq.gz,scrEXT022_hg19_S13_L004_R2_001.fastq.gz,scrEXT022_hg19_S13_L005_R2_001.fastq.gz,scrEXT022_hg19_S13_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample6b. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample6b
+samtools view -h $BAM_DIR/Sample6bAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample6b/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample6b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample6b.baf 
+
+  rm -rf $BAF_DIR/Sample6b
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample6b ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT021_hg19_S12_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT021_hg19_S12_L001_R1_001.fastq.gz,scrEXT021_hg19_S12_L002_R1_001.fastq.gz,scrEXT021_hg19_S12_L003_R1_001.fastq.gz,scrEXT021_hg19_S12_L004_R1_001.fastq.gz,scrEXT021_hg19_S12_L005_R1_001.fastq.gz,scrEXT021_hg19_S12_L006_R1_001.fastq.gz scrEXT021_hg19_S12_L001_R2_001.fastq.gz,scrEXT021_hg19_S12_L002_R2_001.fastq.gz,scrEXT021_hg19_S12_L003_R2_001.fastq.gz,scrEXT021_hg19_S12_L004_R2_001.fastq.gz,scrEXT021_hg19_S12_L005_R2_001.fastq.gz,scrEXT021_hg19_S12_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample6a. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample6a
+samtools view -h $BAM_DIR/Sample6aAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample6a/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample6a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample6a.baf 
+
+  rm -rf $BAF_DIR/Sample6a
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample6a ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S20_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S20_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S20_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S20_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S23_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S23_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S23_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S23_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S23_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S23_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S23_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT026_hg19_S23_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT026_hg19_S20_L001_R1_001.fastq.gz,scrEXT026_hg19_S20_L002_R1_001.fastq.gz,scrEXT026_hg19_S23_L003_R1_001.fastq.gz,scrEXT026_hg19_S23_L004_R1_001.fastq.gz,scrEXT026_hg19_S23_L005_R1_001.fastq.gz,scrEXT026_hg19_S23_L006_R1_001.fastq.gz scrEXT026_hg19_S20_L001_R2_001.fastq.gz,scrEXT026_hg19_S20_L002_R2_001.fastq.gz,scrEXT026_hg19_S23_L003_R2_001.fastq.gz,scrEXT026_hg19_S23_L004_R2_001.fastq.gz,scrEXT026_hg19_S23_L005_R2_001.fastq.gz,scrEXT026_hg19_S23_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample7c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample7c
+samtools view -h $BAM_DIR/Sample7cAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample7c/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample7c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample7c.baf 
+
+  rm -rf $BAF_DIR/Sample7c
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample7c ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S19_L011_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S19_L011_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S19_L012_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S19_L012_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S22_L013_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S22_L013_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S22_L014_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S22_L014_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S22_L015_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S22_L015_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S22_L016_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S22_L016_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT025_hg19_S25_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT025_hg19_S19_L011_R1_001.fastq.gz,scrEXT025_hg19_S19_L012_R1_001.fastq.gz,scrEXT025_hg19_S22_L013_R1_001.fastq.gz,scrEXT025_hg19_S22_L014_R1_001.fastq.gz,scrEXT025_hg19_S22_L015_R1_001.fastq.gz,scrEXT025_hg19_S22_L016_R1_001.fastq.gz,scrEXT025_hg19_S25_L001_R1_001.fastq.gz,scrEXT025_hg19_S25_L002_R1_001.fastq.gz,scrEXT025_hg19_S25_L003_R1_001.fastq.gz,scrEXT025_hg19_S25_L004_R1_001.fastq.gz,scrEXT025_hg19_S25_L005_R1_001.fastq.gz,scrEXT025_hg19_S25_L006_R1_001.fastq.gz scrEXT025_hg19_S19_L011_R2_001.fastq.gz,scrEXT025_hg19_S19_L012_R2_001.fastq.gz,scrEXT025_hg19_S22_L013_R2_001.fastq.gz,scrEXT025_hg19_S22_L014_R2_001.fastq.gz,scrEXT025_hg19_S22_L015_R2_001.fastq.gz,scrEXT025_hg19_S22_L016_R2_001.fastq.gz,scrEXT025_hg19_S25_L001_R2_001.fastq.gz,scrEXT025_hg19_S25_L002_R2_001.fastq.gz,scrEXT025_hg19_S25_L003_R2_001.fastq.gz,scrEXT025_hg19_S25_L004_R2_001.fastq.gz,scrEXT025_hg19_S25_L005_R2_001.fastq.gz,scrEXT025_hg19_S25_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample7b. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample7b
+samtools view -h $BAM_DIR/Sample7bAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample7b/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample7b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample7b.baf 
+
+  rm -rf $BAF_DIR/Sample7b
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample7b ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S18_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S18_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S18_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S18_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S21_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S21_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S21_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S21_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S21_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S21_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S21_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT024_hg19_S21_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT024_hg19_S18_L001_R1_001.fastq.gz,scrEXT024_hg19_S18_L002_R1_001.fastq.gz,scrEXT024_hg19_S21_L003_R1_001.fastq.gz,scrEXT024_hg19_S21_L004_R1_001.fastq.gz,scrEXT024_hg19_S21_L005_R1_001.fastq.gz,scrEXT024_hg19_S21_L006_R1_001.fastq.gz scrEXT024_hg19_S18_L001_R2_001.fastq.gz,scrEXT024_hg19_S18_L002_R2_001.fastq.gz,scrEXT024_hg19_S21_L003_R2_001.fastq.gz,scrEXT024_hg19_S21_L004_R2_001.fastq.gz,scrEXT024_hg19_S21_L005_R2_001.fastq.gz,scrEXT024_hg19_S21_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample7a. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample7a
+samtools view -h $BAM_DIR/Sample7aAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample7a/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample7a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample7a.baf 
+
+  rm -rf $BAF_DIR/Sample7a
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample7a ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S28_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S28_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S28_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S28_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S32_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S32_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S32_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S32_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S32_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S32_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S32_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT029_hg19_S32_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT029_hg19_S28_L001_R1_001.fastq.gz,scrEXT029_hg19_S28_L002_R1_001.fastq.gz,scrEXT029_hg19_S32_L003_R1_001.fastq.gz,scrEXT029_hg19_S32_L004_R1_001.fastq.gz,scrEXT029_hg19_S32_L005_R1_001.fastq.gz,scrEXT029_hg19_S32_L006_R1_001.fastq.gz scrEXT029_hg19_S28_L001_R2_001.fastq.gz,scrEXT029_hg19_S28_L002_R2_001.fastq.gz,scrEXT029_hg19_S32_L003_R2_001.fastq.gz,scrEXT029_hg19_S32_L004_R2_001.fastq.gz,scrEXT029_hg19_S32_L005_R2_001.fastq.gz,scrEXT029_hg19_S32_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample8c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample8c
+samtools view -h $BAM_DIR/Sample8cAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample8c/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample8c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample8c.baf 
+
+  rm -rf $BAF_DIR/Sample8c
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample8c ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S26_L006_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S27_L011_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S27_L011_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S27_L012_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S27_L012_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S31_L013_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S31_L013_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S31_L014_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S31_L014_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S31_L015_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S31_L015_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S31_L016_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT028_hg19_S31_L016_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT028_hg19_S26_L001_R1_001.fastq.gz,scrEXT028_hg19_S26_L002_R1_001.fastq.gz,scrEXT028_hg19_S26_L003_R1_001.fastq.gz,scrEXT028_hg19_S26_L004_R1_001.fastq.gz,scrEXT028_hg19_S26_L005_R1_001.fastq.gz,scrEXT028_hg19_S26_L006_R1_001.fastq.gz,scrEXT028_hg19_S27_L011_R1_001.fastq.gz,scrEXT028_hg19_S27_L012_R1_001.fastq.gz,scrEXT028_hg19_S31_L013_R1_001.fastq.gz,scrEXT028_hg19_S31_L014_R1_001.fastq.gz,scrEXT028_hg19_S31_L015_R1_001.fastq.gz,scrEXT028_hg19_S31_L016_R1_001.fastq.gz scrEXT028_hg19_S26_L001_R2_001.fastq.gz,scrEXT028_hg19_S26_L002_R2_001.fastq.gz,scrEXT028_hg19_S26_L003_R2_001.fastq.gz,scrEXT028_hg19_S26_L004_R2_001.fastq.gz,scrEXT028_hg19_S26_L005_R2_001.fastq.gz,scrEXT028_hg19_S26_L006_R2_001.fastq.gz,scrEXT028_hg19_S27_L011_R2_001.fastq.gz,scrEXT028_hg19_S27_L012_R2_001.fastq.gz,scrEXT028_hg19_S31_L013_R2_001.fastq.gz,scrEXT028_hg19_S31_L014_R2_001.fastq.gz,scrEXT028_hg19_S31_L015_R2_001.fastq.gz,scrEXT028_hg19_S31_L016_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample8b. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample8b
+samtools view -h $BAM_DIR/Sample8bAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample8b/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample8b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample8b.baf 
+
+  rm -rf $BAF_DIR/Sample8b
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample8b ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S26_L011_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S26_L011_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S26_L012_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S26_L012_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S27_L006_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S30_L013_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S30_L013_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S30_L014_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S30_L014_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S30_L015_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S30_L015_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S30_L016_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT027_hg19_S30_L016_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT027_hg19_S26_L011_R1_001.fastq.gz,scrEXT027_hg19_S26_L012_R1_001.fastq.gz,scrEXT027_hg19_S27_L001_R1_001.fastq.gz,scrEXT027_hg19_S27_L002_R1_001.fastq.gz,scrEXT027_hg19_S27_L003_R1_001.fastq.gz,scrEXT027_hg19_S27_L004_R1_001.fastq.gz,scrEXT027_hg19_S27_L005_R1_001.fastq.gz,scrEXT027_hg19_S27_L006_R1_001.fastq.gz,scrEXT027_hg19_S30_L013_R1_001.fastq.gz,scrEXT027_hg19_S30_L014_R1_001.fastq.gz,scrEXT027_hg19_S30_L015_R1_001.fastq.gz,scrEXT027_hg19_S30_L016_R1_001.fastq.gz scrEXT027_hg19_S26_L011_R2_001.fastq.gz,scrEXT027_hg19_S26_L012_R2_001.fastq.gz,scrEXT027_hg19_S27_L001_R2_001.fastq.gz,scrEXT027_hg19_S27_L002_R2_001.fastq.gz,scrEXT027_hg19_S27_L003_R2_001.fastq.gz,scrEXT027_hg19_S27_L004_R2_001.fastq.gz,scrEXT027_hg19_S27_L005_R2_001.fastq.gz,scrEXT027_hg19_S27_L006_R2_001.fastq.gz,scrEXT027_hg19_S30_L013_R2_001.fastq.gz,scrEXT027_hg19_S30_L014_R2_001.fastq.gz,scrEXT027_hg19_S30_L015_R2_001.fastq.gz,scrEXT027_hg19_S30_L016_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample8a. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample8a
+samtools view -h $BAM_DIR/Sample8aAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample8a/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample8a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample8a.baf 
+
+  rm -rf $BAF_DIR/Sample8a
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample8a ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT032_hg19_S13_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT032_hg19_S13_L001_R1_001.fastq.gz,scrEXT032_hg19_S13_L002_R1_001.fastq.gz,scrEXT032_hg19_S13_L003_R1_001.fastq.gz,scrEXT032_hg19_S13_L004_R1_001.fastq.gz,scrEXT032_hg19_S13_L005_R1_001.fastq.gz,scrEXT032_hg19_S13_L006_R1_001.fastq.gz scrEXT032_hg19_S13_L001_R2_001.fastq.gz,scrEXT032_hg19_S13_L002_R2_001.fastq.gz,scrEXT032_hg19_S13_L003_R2_001.fastq.gz,scrEXT032_hg19_S13_L004_R2_001.fastq.gz,scrEXT032_hg19_S13_L005_R2_001.fastq.gz,scrEXT032_hg19_S13_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample9c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample9c
+samtools view -h $BAM_DIR/Sample9cAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample9c/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample9c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample9c.baf 
+
+  rm -rf $BAF_DIR/Sample9c
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample9c ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S12_L006_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S29_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S29_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S29_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT031_hg19_S29_L002_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT031_hg19_S12_L001_R1_001.fastq.gz,scrEXT031_hg19_S12_L002_R1_001.fastq.gz,scrEXT031_hg19_S12_L003_R1_001.fastq.gz,scrEXT031_hg19_S12_L004_R1_001.fastq.gz,scrEXT031_hg19_S12_L005_R1_001.fastq.gz,scrEXT031_hg19_S12_L006_R1_001.fastq.gz,scrEXT031_hg19_S29_L001_R1_001.fastq.gz,scrEXT031_hg19_S29_L002_R1_001.fastq.gz scrEXT031_hg19_S12_L001_R2_001.fastq.gz,scrEXT031_hg19_S12_L002_R2_001.fastq.gz,scrEXT031_hg19_S12_L003_R2_001.fastq.gz,scrEXT031_hg19_S12_L004_R2_001.fastq.gz,scrEXT031_hg19_S12_L005_R2_001.fastq.gz,scrEXT031_hg19_S12_L006_R2_001.fastq.gz,scrEXT031_hg19_S29_L001_R2_001.fastq.gz,scrEXT031_hg19_S29_L002_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample9b. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample9b
+samtools view -h $BAM_DIR/Sample9bAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample9b/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample9b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample9b.baf 
+
+  rm -rf $BAF_DIR/Sample9b
+rm -rf $FASTQ_DIR/* $BAM_DIR/*
+
+
+# Processing sample: Sample9b ---------------------------
+# download all the required fastq files
+
+cd $FASTQ_DIR
+
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT030_hg19_S11_L006_R2_001.fastq.gz
+
+# STAR solo alignment
+
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT030_hg19_S11_L001_R1_001.fastq.gz,scrEXT030_hg19_S11_L002_R1_001.fastq.gz,scrEXT030_hg19_S11_L003_R1_001.fastq.gz,scrEXT030_hg19_S11_L004_R1_001.fastq.gz,scrEXT030_hg19_S11_L005_R1_001.fastq.gz,scrEXT030_hg19_S11_L006_R1_001.fastq.gz scrEXT030_hg19_S11_L001_R2_001.fastq.gz,scrEXT030_hg19_S11_L002_R2_001.fastq.gz,scrEXT030_hg19_S11_L003_R2_001.fastq.gz,scrEXT030_hg19_S11_L004_R2_001.fastq.gz,scrEXT030_hg19_S11_L005_R2_001.fastq.gz,scrEXT030_hg19_S11_L006_R2_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample9a. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
+
+# Generate index
+
+cd $BAM_DIR
+samtools index *.bam
+
+# BAF extract
+
+mkdir -p $BAF_DIR/Sample9a
+samtools view -h $BAM_DIR/Sample9aAligned.sortedByCoord.out.bam | \
+  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample9a/ 10 0 
+
+  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample9a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample9a.baf 
+
+  rm -rf $BAF_DIR/Sample9a
+rm -rf $FASTQ_DIR/* $BAM_DIR/*

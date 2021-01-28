@@ -1,0 +1,17 @@
+#!/bin/bash
+set -uex -o pipefail
+
+WD="~/userData/colon_cancer_patients_CNV"
+FASTQ_DIR=$WD/data/fastq
+BAM_DIR=$WD/processed/bam
+BAF_DIR=$WD/processed/baf
+
+STAR=/mnt/data/ccbc_environment/software/general/STAR-2.7.6a/STAR
+GENOME_INDEX=~/userData/resources/genomes/homosapiens/STAR/GRCh38
+BAFExtract=~/userData/software/BAFExtract-master/bin/BAFExtract
+GENOME_PILEUP=~/userData/resources/genomes/homosapiens/BAFextract/GRCh38
+CHROM_SIZE=~/userData/resources/genomes/homosapiens/BAFextract/GRCh38_chromsizes.list
+
+cd $WD
+mkdir -p $FASTQ_DIR
+mkdir -p $BAM_DIR
