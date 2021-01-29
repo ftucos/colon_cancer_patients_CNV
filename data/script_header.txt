@@ -1,7 +1,7 @@
 #!/bin/bash
 set -uex -o pipefail
 
-WD="~/userData/colon_cancer_patients_CNV"
+WD=~/userData/colon_cancer_patients_CNV
 FASTQ_DIR=$WD/data/fastq
 BAM_DIR=$WD/processed/bam
 BAF_DIR=$WD/processed/baf
