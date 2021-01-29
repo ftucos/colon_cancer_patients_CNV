@@ -5,6 +5,7 @@ WD=~/userData/colon_cancer_patients_CNV
 FASTQ_DIR=$WD/data/fastq
 BAM_DIR=$WD/processed/bam
 BAF_DIR=$WD/processed/baf
+LOG_DIR=$WD/logs/
 
 STAR=/mnt/data/ccbc_environment/software/general/STAR-2.7.6a/STAR
 GENOME_INDEX=~/userData/resources/genomes/homosapiens/STAR/GRCh38
@@ -16,3 +17,5 @@ cd $WD
 mkdir -p $FASTQ_DIR
 mkdir -p $BAM_DIR
 mkdir -p $BAF_DIR
+mkdir -p $LOG_DIR
+

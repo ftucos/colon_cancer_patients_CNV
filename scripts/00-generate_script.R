@@ -54,6 +54,11 @@ for(i in 1:length(file_groups)) {
       --bamRemoveDuplicatesType UniqueIdentical"
       ))
   
+  # Move alignment logs 
+  writescript("\n # Move Log Files \n")
+  writescript("mv *Log* $LOG_DIR/")
+  
+  # Generate index
   writescript("\n# Generate index\n")
   writescript("cd $BAM_DIR")
   writescript("samtools index *.bam")
@@ -61,7 +66,7 @@ for(i in 1:length(file_groups)) {
   # BAFextract
   writescript("\n# BAF extract\n")
   writescript(paste0("mkdir -p $BAF_DIR/", samples_to_aggregate[1, "Source.Name"], "\n",
-  "samtools view -h $BAM_DIR/", samples_to_aggregate[1, "Source.Name"], "Aligned.sortedByCoord.out.bam | \\
+  "samtools view -h $BAM_DIR/", samples_to_aggregate[1, "Source.Name"], ".Aligned.sortedByCoord.out.bam | \\
   $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/", samples_to_aggregate[1, "Source.Name"], "/ 10 0 \n
   $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/", samples_to_aggregate[1, "Source.Name"], "/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/", samples_to_aggregate[1, "Source.Name"], ".baf \n
   rm -rf $BAF_DIR/", samples_to_aggregate[1, "Source.Name"]))
