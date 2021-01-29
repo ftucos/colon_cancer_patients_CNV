@@ -53,14 +53,15 @@ for(i in 1:length(file_groups)) {
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \\
       --bamRemoveDuplicatesType UniqueIdentical"
       ))
-  
+
+  writescript("\ncd $BAM_DIR\n")
+
   # Move alignment logs 
   writescript("\n # Move Log Files \n")
   writescript("mv *Log* $LOG_DIR/")
   
   # Generate index
   writescript("\n# Generate index\n")
-  writescript("cd $BAM_DIR")
   writescript("samtools index *.bam")
   
   # BAFextract

@@ -49,13 +49,15 @@ cd $FASTQ_DIR
 #       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
 #       --bamRemoveDuplicatesType UniqueIdentical
 
- # Move Log Files 
+cd $BAM_DIR
+
+# Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-# cd $BAM_DIR
+
 # samtools index *.bam
 
 # BAF extract
