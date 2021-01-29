@@ -26,39 +26,39 @@ mkdir -p $LOG_DIR
 
 cd $FASTQ_DIR
 
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R1_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R2_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R1_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R2_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R1_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R2_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R1_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R2_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R1_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R2_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R1_001.fastq.gz
-# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R2_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R1_001.fastq.gz
+wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R2_001.fastq.gz
 
-# # STAR solo alignment
+# STAR solo alignment
 
-# $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
-#       --readFilesIn scrEXT003_hg19_S15_L001_R2_001.fastq.gz,scrEXT003_hg19_S15_L002_R2_001.fastq.gz,scrEXT003_hg19_S15_L003_R2_001.fastq.gz,scrEXT003_hg19_S15_L004_R2_001.fastq.gz,scrEXT003_hg19_S15_L005_R2_001.fastq.gz,scrEXT003_hg19_S15_L006_R2_001.fastq.gz scrEXT003_hg19_S15_L001_R1_001.fastq.gz,scrEXT003_hg19_S15_L002_R1_001.fastq.gz,scrEXT003_hg19_S15_L003_R1_001.fastq.gz,scrEXT003_hg19_S15_L004_R1_001.fastq.gz,scrEXT003_hg19_S15_L005_R1_001.fastq.gz,scrEXT003_hg19_S15_L006_R1_001.fastq.gz\
-#       --readFilesCommand gunzip -c \
-#       --outSAMtype BAM SortedByCoordinate \
-#       --outFileNamePrefix $BAM_DIR/Sample1c. \
-#       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
-#       --bamRemoveDuplicatesType UniqueIdentical
+$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+      --readFilesIn scrEXT003_hg19_S15_L001_R2_001.fastq.gz,scrEXT003_hg19_S15_L002_R2_001.fastq.gz,scrEXT003_hg19_S15_L003_R2_001.fastq.gz,scrEXT003_hg19_S15_L004_R2_001.fastq.gz,scrEXT003_hg19_S15_L005_R2_001.fastq.gz,scrEXT003_hg19_S15_L006_R2_001.fastq.gz scrEXT003_hg19_S15_L001_R1_001.fastq.gz,scrEXT003_hg19_S15_L002_R1_001.fastq.gz,scrEXT003_hg19_S15_L003_R1_001.fastq.gz,scrEXT003_hg19_S15_L004_R1_001.fastq.gz,scrEXT003_hg19_S15_L005_R1_001.fastq.gz,scrEXT003_hg19_S15_L006_R1_001.fastq.gz\
+      --readFilesCommand gunzip -c \
+      --outSAMtype BAM SortedByCoordinate \
+      --outFileNamePrefix $BAM_DIR/Sample1c. \
+      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+      --bamRemoveDuplicatesType UniqueIdentical
 
 cd $BAM_DIR
 
-# Move Log Files 
+
+ # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-
-# samtools index *.bam
+samtools index *.bam
 
 # BAF extract
 
@@ -72,7 +72,7 @@ samtools view -h $BAM_DIR/Sample1c.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample1c ----------------------------------------------
+# Processing sample: Sample1b ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -90,13 +90,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -111,7 +113,7 @@ samtools view -h $BAM_DIR/Sample1b.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample1b ----------------------------------------------
+# Processing sample: Sample1a ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -129,13 +131,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -150,7 +154,7 @@ samtools view -h $BAM_DIR/Sample1a.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample1a ----------------------------------------------
+# Processing sample: Sample2c ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -178,13 +182,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -199,7 +205,7 @@ samtools view -h $BAM_DIR/Sample2c.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample2c ----------------------------------------------
+# Processing sample: Sample2b ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -227,13 +233,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -248,7 +256,7 @@ samtools view -h $BAM_DIR/Sample2b.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample2b ----------------------------------------------
+# Processing sample: Sample2a ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -276,13 +284,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -297,7 +307,7 @@ samtools view -h $BAM_DIR/Sample2a.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample2a ----------------------------------------------
+# Processing sample: Sample3c ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -325,13 +335,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -346,7 +358,7 @@ samtools view -h $BAM_DIR/Sample3c.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample3c ----------------------------------------------
+# Processing sample: Sample3b ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -374,13 +386,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -395,7 +409,7 @@ samtools view -h $BAM_DIR/Sample3b.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample3b ----------------------------------------------
+# Processing sample: Sample3a ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -423,13 +437,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -444,7 +460,7 @@ samtools view -h $BAM_DIR/Sample3a.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample3a ----------------------------------------------
+# Processing sample: Sample4c ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -472,13 +488,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -493,7 +511,7 @@ samtools view -h $BAM_DIR/Sample4c.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample4c ----------------------------------------------
+# Processing sample: Sample4b ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -521,13 +539,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -542,7 +562,7 @@ samtools view -h $BAM_DIR/Sample4b.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample4b ----------------------------------------------
+# Processing sample: Sample4a ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -570,13 +590,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -591,7 +613,7 @@ samtools view -h $BAM_DIR/Sample4a.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample4a ----------------------------------------------
+# Processing sample: Sample5c ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -619,13 +641,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -640,7 +664,7 @@ samtools view -h $BAM_DIR/Sample5c.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample5c ----------------------------------------------
+# Processing sample: Sample5b ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -668,13 +692,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -689,7 +715,7 @@ samtools view -h $BAM_DIR/Sample5b.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample5b ----------------------------------------------
+# Processing sample: Sample5a ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -717,13 +743,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -738,7 +766,7 @@ samtools view -h $BAM_DIR/Sample5a.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample5a ----------------------------------------------
+# Processing sample: Sample6c ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -766,13 +794,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -787,7 +817,7 @@ samtools view -h $BAM_DIR/Sample6c.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample6c ----------------------------------------------
+# Processing sample: Sample6b ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -815,13 +845,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -836,7 +868,7 @@ samtools view -h $BAM_DIR/Sample6b.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample6b ----------------------------------------------
+# Processing sample: Sample6a ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -864,13 +896,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -885,7 +919,7 @@ samtools view -h $BAM_DIR/Sample6a.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample6a ----------------------------------------------
+# Processing sample: Sample7c ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -913,13 +947,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -934,7 +970,7 @@ samtools view -h $BAM_DIR/Sample7c.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample7c ----------------------------------------------
+# Processing sample: Sample7b ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -974,13 +1010,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -995,7 +1033,7 @@ samtools view -h $BAM_DIR/Sample7b.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample7b ----------------------------------------------
+# Processing sample: Sample7a ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -1023,13 +1061,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -1044,7 +1084,7 @@ samtools view -h $BAM_DIR/Sample7a.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample7a ----------------------------------------------
+# Processing sample: Sample8c ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -1072,13 +1112,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -1093,7 +1135,7 @@ samtools view -h $BAM_DIR/Sample8c.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample8c ----------------------------------------------
+# Processing sample: Sample8b ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -1133,13 +1175,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -1154,7 +1198,7 @@ samtools view -h $BAM_DIR/Sample8b.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample8b ----------------------------------------------
+# Processing sample: Sample8a ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -1194,13 +1238,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -1215,7 +1261,7 @@ samtools view -h $BAM_DIR/Sample8a.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample8a ----------------------------------------------
+# Processing sample: Sample9c ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -1243,13 +1289,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -1264,7 +1312,7 @@ samtools view -h $BAM_DIR/Sample9c.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample9c ----------------------------------------------
+# Processing sample: Sample9b ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -1296,13 +1344,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract
@@ -1317,7 +1367,7 @@ samtools view -h $BAM_DIR/Sample9b.Aligned.sortedByCoord.out.bam | \
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
 
 
-# Processing sample: Sample9b ----------------------------------------------
+# Processing sample: Sample9a ----------------------------------------------
 # download all the required fastq files
 
 cd $FASTQ_DIR
@@ -1345,13 +1395,15 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+cd $BAM_DIR
+
+
  # Move Log Files 
 
 mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
 samtools index *.bam
 
 # BAF extract

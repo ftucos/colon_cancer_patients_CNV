@@ -23,10 +23,9 @@ write(readLines("data/script_header.txt"), file="scripts/01-align_and_BAFextract
 file_groups <- unique(metadata$Source.Name)
 for(i in 1:length(file_groups)) {
   
+  samples_to_aggregate <- metadata %>% filter(Source.Name == file_groups[[i]])
   writescript(paste0("\n\n# Processing sample: ", samples_to_aggregate[1,"Source.Name"], " ----------------------------------------------"))
-  
-  samples_to_aggregate <- metadata %>% filter(Source.Name == file_groups[i])
-  # download all the fastq files
+    # download all the fastq files
   writescript("# download all the required fastq files\n")
   writescript("cd $FASTQ_DIR\n")
   for(j in 1:nrow(samples_to_aggregate)) {
