@@ -15,3 +15,4 @@ CHROM_SIZE=~/userData/resources/genomes/homosapiens/BAFextract/GRCh38_chromsizes
 cd $WD
 mkdir -p $FASTQ_DIR
 mkdir -p $BAM_DIR
+mkdir -p $BAF_DIR
