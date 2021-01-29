@@ -16,8 +16,8 @@ writescript <- function(x){write(x, file="scripts/01-align_and_BAFextract", appe
 
 
 # Build bash script ------------------------------------------------------
-# add boilerplate code from template to the script
-writescript(readLines("data/script_header.txt"))
+# add boilerplate code from template to the script owervriting any previous file
+write(readLines("data/script_header.txt"), file="scripts/01-align_and_BAFextract", append=FALSE)
 
 # Loop over file group
 file_groups <- unique(metadata$Source.Name)
@@ -42,9 +42,10 @@ for(i in 1:length(file_groups)) {
     paste0(
       "$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \\
       --readFilesIn ",
-      paste(samples_to_aggregate[1:nrow(samples_to_aggregate), "Comment.read1.file."], collapse=","),
-      " ",
       paste(samples_to_aggregate[1:nrow(samples_to_aggregate), "Comment.read2.file."], collapse=","),
+      " ",
+      # Barcode + UMI reads
+      paste(samples_to_aggregate[1:nrow(samples_to_aggregate), "Comment.read1.file."], collapse=","),
       "\\
       --readFilesCommand gunzip -c \\
       --outSAMtype BAM SortedByCoordinate \\
@@ -68,3 +69,7 @@ for(i in 1:length(file_groups)) {
   # Remove .fastq and .bam files
   writescript("rm -rf $FASTQ_DIR/* $BAM_DIR/*")
 }
+
+# make it executable
+Sys.chmod("scripts/01-align_and_BAFextract", mode = "755")
+
