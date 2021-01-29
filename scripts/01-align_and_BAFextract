@@ -5,6 +5,7 @@ WD=~/userData/colon_cancer_patients_CNV
 FASTQ_DIR=$WD/data/fastq
 BAM_DIR=$WD/processed/bam
 BAF_DIR=$WD/processed/baf
+LOG_DIR=$WD/logs/
 
 STAR=/mnt/data/ccbc_environment/software/general/STAR-2.7.6a/STAR
 GENOME_INDEX=~/userData/resources/genomes/homosapiens/STAR/GRCh38
@@ -16,6 +17,8 @@ cd $WD
 mkdir -p $FASTQ_DIR
 mkdir -p $BAM_DIR
 mkdir -p $BAF_DIR
+mkdir -p $LOG_DIR
+
 
 
 # Processing sample: Sample1c ----------------------------------------------
@@ -23,41 +26,45 @@ mkdir -p $BAF_DIR
 
 cd $FASTQ_DIR
 
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R1_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R2_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R1_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R2_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R1_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R2_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R1_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R2_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R1_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R2_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R1_001.fastq.gz
-wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R2_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R1_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L001_R2_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R1_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L002_R2_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R1_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L003_R2_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R1_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L004_R2_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R1_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L005_R2_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R1_001.fastq.gz
+# wget ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/MTAB/E-MTAB-8410/scrEXT003_hg19_S15_L006_R2_001.fastq.gz
 
-# STAR solo alignment
+# # STAR solo alignment
 
-$STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
-      --readFilesIn scrEXT003_hg19_S15_L001_R2_001.fastq.gz,scrEXT003_hg19_S15_L002_R2_001.fastq.gz,scrEXT003_hg19_S15_L003_R2_001.fastq.gz,scrEXT003_hg19_S15_L004_R2_001.fastq.gz,scrEXT003_hg19_S15_L005_R2_001.fastq.gz,scrEXT003_hg19_S15_L006_R2_001.fastq.gz scrEXT003_hg19_S15_L001_R1_001.fastq.gz,scrEXT003_hg19_S15_L002_R1_001.fastq.gz,scrEXT003_hg19_S15_L003_R1_001.fastq.gz,scrEXT003_hg19_S15_L004_R1_001.fastq.gz,scrEXT003_hg19_S15_L005_R1_001.fastq.gz,scrEXT003_hg19_S15_L006_R1_001.fastq.gz\
-      --readFilesCommand gunzip -c \
-      --outSAMtype BAM SortedByCoordinate \
-      --outFileNamePrefix $BAM_DIR/Sample1c. \
-      --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
-      --bamRemoveDuplicatesType UniqueIdentical
+# $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
+#       --readFilesIn scrEXT003_hg19_S15_L001_R2_001.fastq.gz,scrEXT003_hg19_S15_L002_R2_001.fastq.gz,scrEXT003_hg19_S15_L003_R2_001.fastq.gz,scrEXT003_hg19_S15_L004_R2_001.fastq.gz,scrEXT003_hg19_S15_L005_R2_001.fastq.gz,scrEXT003_hg19_S15_L006_R2_001.fastq.gz scrEXT003_hg19_S15_L001_R1_001.fastq.gz,scrEXT003_hg19_S15_L002_R1_001.fastq.gz,scrEXT003_hg19_S15_L003_R1_001.fastq.gz,scrEXT003_hg19_S15_L004_R1_001.fastq.gz,scrEXT003_hg19_S15_L005_R1_001.fastq.gz,scrEXT003_hg19_S15_L006_R1_001.fastq.gz\
+#       --readFilesCommand gunzip -c \
+#       --outSAMtype BAM SortedByCoordinate \
+#       --outFileNamePrefix $BAM_DIR/Sample1c. \
+#       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
+#       --bamRemoveDuplicatesType UniqueIdentical
+
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
 
 # Generate index
 
-cd $BAM_DIR
-samtools index *.bam
+# cd $BAM_DIR
+# samtools index *.bam
 
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample1c
-samtools view -h $BAM_DIR/Sample1cAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample1c/ 10 0 
+samtools view -h $BAM_DIR/Sample1c.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample1c/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample1c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample1c.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample1c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample1c.baf 
 
   rm -rf $BAF_DIR/Sample1c
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -81,6 +88,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -89,10 +100,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample1b
-samtools view -h $BAM_DIR/Sample1bAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample1b/ 10 0 
+samtools view -h $BAM_DIR/Sample1b.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample1b/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample1b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample1b.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample1b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample1b.baf 
 
   rm -rf $BAF_DIR/Sample1b
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -116,6 +127,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -124,10 +139,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample1a
-samtools view -h $BAM_DIR/Sample1aAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample1a/ 10 0 
+samtools view -h $BAM_DIR/Sample1a.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample1a/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample1a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample1a.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample1a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample1a.baf 
 
   rm -rf $BAF_DIR/Sample1a
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -161,6 +176,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -169,10 +188,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample2c
-samtools view -h $BAM_DIR/Sample2cAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample2c/ 10 0 
+samtools view -h $BAM_DIR/Sample2c.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample2c/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample2c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample2c.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample2c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample2c.baf 
 
   rm -rf $BAF_DIR/Sample2c
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -206,6 +225,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -214,10 +237,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample2b
-samtools view -h $BAM_DIR/Sample2bAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample2b/ 10 0 
+samtools view -h $BAM_DIR/Sample2b.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample2b/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample2b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample2b.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample2b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample2b.baf 
 
   rm -rf $BAF_DIR/Sample2b
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -251,6 +274,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -259,10 +286,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample2a
-samtools view -h $BAM_DIR/Sample2aAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample2a/ 10 0 
+samtools view -h $BAM_DIR/Sample2a.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample2a/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample2a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample2a.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample2a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample2a.baf 
 
   rm -rf $BAF_DIR/Sample2a
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -296,6 +323,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -304,10 +335,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample3c
-samtools view -h $BAM_DIR/Sample3cAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample3c/ 10 0 
+samtools view -h $BAM_DIR/Sample3c.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample3c/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample3c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample3c.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample3c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample3c.baf 
 
   rm -rf $BAF_DIR/Sample3c
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -341,6 +372,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -349,10 +384,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample3b
-samtools view -h $BAM_DIR/Sample3bAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample3b/ 10 0 
+samtools view -h $BAM_DIR/Sample3b.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample3b/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample3b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample3b.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample3b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample3b.baf 
 
   rm -rf $BAF_DIR/Sample3b
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -386,6 +421,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -394,10 +433,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample3a
-samtools view -h $BAM_DIR/Sample3aAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample3a/ 10 0 
+samtools view -h $BAM_DIR/Sample3a.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample3a/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample3a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample3a.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample3a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample3a.baf 
 
   rm -rf $BAF_DIR/Sample3a
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -431,6 +470,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -439,10 +482,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample4c
-samtools view -h $BAM_DIR/Sample4cAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample4c/ 10 0 
+samtools view -h $BAM_DIR/Sample4c.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample4c/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample4c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample4c.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample4c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample4c.baf 
 
   rm -rf $BAF_DIR/Sample4c
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -476,6 +519,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -484,10 +531,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample4b
-samtools view -h $BAM_DIR/Sample4bAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample4b/ 10 0 
+samtools view -h $BAM_DIR/Sample4b.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample4b/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample4b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample4b.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample4b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample4b.baf 
 
   rm -rf $BAF_DIR/Sample4b
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -521,6 +568,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -529,10 +580,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample4a
-samtools view -h $BAM_DIR/Sample4aAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample4a/ 10 0 
+samtools view -h $BAM_DIR/Sample4a.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample4a/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample4a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample4a.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample4a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample4a.baf 
 
   rm -rf $BAF_DIR/Sample4a
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -566,6 +617,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -574,10 +629,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample5c
-samtools view -h $BAM_DIR/Sample5cAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample5c/ 10 0 
+samtools view -h $BAM_DIR/Sample5c.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample5c/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample5c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample5c.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample5c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample5c.baf 
 
   rm -rf $BAF_DIR/Sample5c
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -611,6 +666,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -619,10 +678,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample5b
-samtools view -h $BAM_DIR/Sample5bAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample5b/ 10 0 
+samtools view -h $BAM_DIR/Sample5b.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample5b/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample5b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample5b.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample5b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample5b.baf 
 
   rm -rf $BAF_DIR/Sample5b
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -656,6 +715,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -664,10 +727,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample5a
-samtools view -h $BAM_DIR/Sample5aAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample5a/ 10 0 
+samtools view -h $BAM_DIR/Sample5a.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample5a/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample5a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample5a.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample5a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample5a.baf 
 
   rm -rf $BAF_DIR/Sample5a
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -701,6 +764,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -709,10 +776,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample6c
-samtools view -h $BAM_DIR/Sample6cAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample6c/ 10 0 
+samtools view -h $BAM_DIR/Sample6c.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample6c/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample6c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample6c.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample6c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample6c.baf 
 
   rm -rf $BAF_DIR/Sample6c
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -746,6 +813,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -754,10 +825,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample6b
-samtools view -h $BAM_DIR/Sample6bAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample6b/ 10 0 
+samtools view -h $BAM_DIR/Sample6b.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample6b/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample6b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample6b.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample6b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample6b.baf 
 
   rm -rf $BAF_DIR/Sample6b
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -791,6 +862,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -799,10 +874,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample6a
-samtools view -h $BAM_DIR/Sample6aAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample6a/ 10 0 
+samtools view -h $BAM_DIR/Sample6a.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample6a/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample6a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample6a.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample6a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample6a.baf 
 
   rm -rf $BAF_DIR/Sample6a
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -836,6 +911,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -844,10 +923,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample7c
-samtools view -h $BAM_DIR/Sample7cAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample7c/ 10 0 
+samtools view -h $BAM_DIR/Sample7c.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample7c/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample7c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample7c.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample7c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample7c.baf 
 
   rm -rf $BAF_DIR/Sample7c
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -893,6 +972,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -901,10 +984,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample7b
-samtools view -h $BAM_DIR/Sample7bAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample7b/ 10 0 
+samtools view -h $BAM_DIR/Sample7b.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample7b/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample7b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample7b.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample7b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample7b.baf 
 
   rm -rf $BAF_DIR/Sample7b
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -938,6 +1021,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -946,10 +1033,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample7a
-samtools view -h $BAM_DIR/Sample7aAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample7a/ 10 0 
+samtools view -h $BAM_DIR/Sample7a.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample7a/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample7a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample7a.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample7a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample7a.baf 
 
   rm -rf $BAF_DIR/Sample7a
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -983,6 +1070,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -991,10 +1082,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample8c
-samtools view -h $BAM_DIR/Sample8cAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample8c/ 10 0 
+samtools view -h $BAM_DIR/Sample8c.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample8c/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample8c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample8c.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample8c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample8c.baf 
 
   rm -rf $BAF_DIR/Sample8c
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -1040,6 +1131,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -1048,10 +1143,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample8b
-samtools view -h $BAM_DIR/Sample8bAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample8b/ 10 0 
+samtools view -h $BAM_DIR/Sample8b.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample8b/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample8b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample8b.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample8b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample8b.baf 
 
   rm -rf $BAF_DIR/Sample8b
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -1097,6 +1192,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -1105,10 +1204,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample8a
-samtools view -h $BAM_DIR/Sample8aAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample8a/ 10 0 
+samtools view -h $BAM_DIR/Sample8a.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample8a/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample8a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample8a.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample8a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample8a.baf 
 
   rm -rf $BAF_DIR/Sample8a
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -1142,6 +1241,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -1150,10 +1253,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample9c
-samtools view -h $BAM_DIR/Sample9cAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample9c/ 10 0 
+samtools view -h $BAM_DIR/Sample9c.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample9c/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample9c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample9c.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample9c/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample9c.baf 
 
   rm -rf $BAF_DIR/Sample9c
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -1191,6 +1294,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -1199,10 +1306,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample9b
-samtools view -h $BAM_DIR/Sample9bAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample9b/ 10 0 
+samtools view -h $BAM_DIR/Sample9b.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample9b/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample9b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample9b.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample9b/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample9b.baf 
 
   rm -rf $BAF_DIR/Sample9b
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
@@ -1236,6 +1343,10 @@ $STAR --runThreadN 96 --genomeDir $GENOME_INDEX \
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \
       --bamRemoveDuplicatesType UniqueIdentical
 
+ # Move Log Files 
+
+mv *Log* $LOG_DIR/
+
 # Generate index
 
 cd $BAM_DIR
@@ -1244,10 +1355,10 @@ samtools index *.bam
 # BAF extract
 
 mkdir -p $BAF_DIR/Sample9a
-samtools view -h $BAM_DIR/Sample9aAligned.sortedByCoord.out.bam | \
-  $BAFextract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample9a/ 10 0 
+samtools view -h $BAM_DIR/Sample9a.Aligned.sortedByCoord.out.bam | \
+  $BAFExtract -generate_compressed_pileup_per_SAM stdin $CHROM_SIZE $BAF_DIR/Sample9a/ 10 0 
 
-  $BAFextract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample9a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample9a.baf 
+  $BAFExtract -get_SNVs_per_pileup $CHROM_SIZE $BAF_DIR/Sample9a/ $GENOME_PILEUP 20 4 0.1 $BAF_DIR/Sample9a.baf 
 
   rm -rf $BAF_DIR/Sample9a
 rm -rf $FASTQ_DIR/* $BAM_DIR/*
