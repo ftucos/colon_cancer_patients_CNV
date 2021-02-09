@@ -50,7 +50,7 @@ for(i in 1:length(file_groups)) {
       --outSAMtype BAM SortedByCoordinate \\
       --outFileNamePrefix $BAM_DIR/", samples_to_aggregate[1, "Source.Name"], ". \\
       --soloType CB_UMI_Simple --soloCBwhitelist $WD/data/737K-august-2016.txt \\
-      --bamRemoveDuplicatesType UniqueIdentical"
+      --soloFeatures Gene"
       ))
 
   writescript("\ncd $BAM_DIR\n")
